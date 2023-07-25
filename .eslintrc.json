@@ -19,5 +19,12 @@
       }
     ],
     "no-console": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": ["src"]
+      }
+    }
   }
 }
