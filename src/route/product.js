@@ -1,15 +1,23 @@
+/* eslint-disable import/extensions */
 import express from 'express';
+import { validationResult } from 'express-validator';
 import {
   ProductModel,
   productCreationValidatorSchema,
   productDeletionValidatorSchema,
   productQueryValidatorSchema,
-} from '../model/product';
+} from '../model/product.js';
 
 const productRouter = express.Router();
 const productEndpoint = '/products';
 
 productRouter.get(productEndpoint, productQueryValidatorSchema, async (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    console.err(result.array());
+    res.status(403).send(result.array()).end();
+    return;
+  }
   const { videoId } = req.query;
 
   try {
@@ -27,6 +35,13 @@ productRouter.get(productEndpoint, productQueryValidatorSchema, async (req, res)
 });
 
 productRouter.post(productEndpoint, productCreationValidatorSchema, async (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    console.err(result.array());
+    res.status(403).send(result.array()).end();
+    return;
+  }
+
   const { videoId, linkProduct, title, price } = req.body;
   try {
     const newProduct = await ProductModel.create({ videoId, linkProduct, title, price });
@@ -34,13 +49,19 @@ productRouter.post(productEndpoint, productCreationValidatorSchema, async (req, 
     console.log(`Product saved with data ${newProduct}`);
   } catch (error) {
     console.error(error);
-    res.status(500).send(error).end();
+    res.status(403).send(error).end();
   }
 });
 
 productRouter.put(productEndpoint, productCreationValidatorSchema, async (req, res) => {
-  const { productId, videoId, linkProduct, title, price } = req.body;
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    console.err(result.array());
+    res.status(403).send(result.array()).end();
+    return;
+  }
 
+  const { productId, videoId, linkProduct, title, price } = req.body;
   try {
     const updatedProduct = await ProductModel.findOneAndUpdate(
       { _id: productId },
@@ -55,6 +76,13 @@ productRouter.put(productEndpoint, productCreationValidatorSchema, async (req, r
 });
 
 productRouter.delete(productEndpoint, productDeletionValidatorSchema, async (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    console.err(result.array());
+    res.status(403).send(result.array()).end();
+    return;
+  }
+
   const { productId } = req.body;
 
   try {

@@ -1,8 +1,9 @@
+/* eslint-disable import/extensions */
 import express from 'express';
 import mongoose from 'mongoose';
-import productRouter from './route/product';
-import videoRouter from './route/video';
-import commentRouter from './route/comment';
+import productRouter from './route/product.js';
+import videoRouter from './route/video.js';
+import commentRouter from './route/comment.js';
 
 const app = express();
 const port = 3000;

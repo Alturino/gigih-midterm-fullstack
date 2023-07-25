@@ -1,21 +1,30 @@
+/* eslint-disable import/extensions */
 import express from 'express';
+import { validationResult } from 'express-validator';
 import {
   CommentModel,
-  commentQueryValidatorSchema,
-  commentBodyValidatorSchema,
-} from '../model/comment';
+  commentDeletionValidatorSchema,
+  commentCreationValidatorSchema,
+} from '../model/comment.js';
 
 const commentRouter = express.Router();
 const commentEndpoint = '/comments';
 
-commentRouter.get(commentEndpoint, commentQueryValidatorSchema, async (req, res) => {
+commentRouter.get(commentEndpoint, commentDeletionValidatorSchema, async (req, res) => {
   const { videoId } = req.query;
   const comments = await CommentModel.find({ videoId }).exec();
 
   res.status(200).json(comments).end();
 });
 
-commentRouter.post(commentEndpoint, commentBodyValidatorSchema, async (req, res) => {
+commentRouter.post(commentEndpoint, commentCreationValidatorSchema, async (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    console.err(result.array());
+    res.status(403).send(result.array()).end();
+    return;
+  }
+
   const { videoId, username, comment } = req.body;
   try {
     const newComment = await CommentModel.create({ videoId, username, comment });
@@ -27,9 +36,15 @@ commentRouter.post(commentEndpoint, commentBodyValidatorSchema, async (req, res)
   }
 });
 
-commentRouter.put(commentEndpoint, commentBodyValidatorSchema, async (req, res) => {
-  const { commentId, username, comment } = req.body;
+commentRouter.put(commentEndpoint, commentCreationValidatorSchema, async (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    console.err(result.array());
+    res.status(403).send(result.array()).end();
+    return;
+  }
 
+  const { commentId, username, comment } = req.body;
   try {
     const updatedComment = await CommentModel.findOneAndUpdate(
       { _id: commentId },
@@ -51,7 +66,14 @@ commentRouter.put(commentEndpoint, commentBodyValidatorSchema, async (req, res) 
   }
 });
 
-commentRouter.delete(commentEndpoint, async (req, res) => {
+commentRouter.delete(commentEndpoint, commentDeletionValidatorSchema, async (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    console.err(result.array());
+    res.status(403).send(result.array()).end();
+    return;
+  }
+
   const { commentId } = req.body;
   try {
     await CommentModel.findByIdAndDelete({ _id: commentId });

@@ -1,6 +1,6 @@
+/* eslint-disable import/extensions */
 import mongoose from 'mongoose';
 import { checkSchema } from 'express-validator';
-import CommentModel from './comment';
 
 const videoSchema = new mongoose.Schema({
   urlImage: {
@@ -15,9 +15,18 @@ const videoSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  comments: {
-    type: [CommentModel],
-  },
+  comments: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: 'Comment',
+    },
+  ],
+  products: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: 'Product',
+    },
+  ],
 });
 
 export const VideoModel = mongoose.model('Video', videoSchema);
@@ -43,6 +52,10 @@ export const videoCreationValidatorSchema = checkSchema(
       },
     },
     comments: {
+      optional: true,
+      isArray: true,
+    },
+    products: {
       optional: true,
       isArray: true,
     },

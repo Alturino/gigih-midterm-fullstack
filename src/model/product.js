@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 import { checkSchema } from 'express-validator';
 
-const productMongooseSchema = new mongoose.Schema({
+export const productMongooseSchema = new mongoose.Schema({
   videoId: {
     required: true,
-    type: String,
+    type: mongoose.Types.ObjectId,
+    ref: 'Video',
   },
   linkProduct: {
     required: true,
@@ -56,7 +57,9 @@ export const productCreationValidatorSchema = checkSchema(
 export const productDeletionValidatorSchema = checkSchema(
   {
     productId: {
-      notEmpty: false,
+      notEmpty: {
+        errorMessage: 'productId should not be empty',
+      },
       optional: false,
       isMongoId: true,
       errorMessage: 'Invalid productId',
@@ -70,6 +73,8 @@ export const productQueryValidatorSchema = checkSchema(
     videoId: {
       isMongoId: true,
       optional: false,
+      notEmpty: true,
+      errorMessage: 'video',
     },
   },
   ['query'],

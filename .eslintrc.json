@@ -1,7 +1,8 @@
 {
+  "root": true,
   "env": {
     "browser": true,
-    "commonjs": false,
+    "commonjs": true,
     "node": true,
     "es2023": true
   },
@@ -19,12 +20,5 @@
       }
     ],
     "no-console": "off"
-  },
-  "settings": {
-    "import/resolver": {
-      "node": {
-        "paths": ["src"]
-      }
-    }
   }
 }

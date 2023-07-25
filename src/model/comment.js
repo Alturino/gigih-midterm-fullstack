@@ -1,8 +1,13 @@
 import { checkSchema } from 'express-validator';
 import mongoose from 'mongoose';
 
-const commentSchema = new mongoose.Schema(
+export const commentSchema = new mongoose.Schema(
   {
+    videoId: {
+      required: true,
+      type: mongoose.Types.ObjectId,
+      ref: 'Video',
+    },
     username: {
       required: true,
       type: String,
@@ -17,22 +22,35 @@ const commentSchema = new mongoose.Schema(
 
 export const CommentModel = mongoose.model('Comment', commentSchema);
 
-export const commentBodyValidatorSchema = checkSchema(
+export const commentCreationValidatorSchema = checkSchema(
   {
     videoId: {
+      optional: false,
+      notEmpty: {
+        errorMessage: 'videoId should not be empty',
+      },
       isMongoId: true,
     },
     username: {
-      isString: true,
+      optional: false,
+      isString: {
+        errorMessage: 'username should be string',
+      },
       isLength: {
-        errorMessage: 'Username should be at least 8 character length',
+        errorMessage: 'username should be at least 8 character length',
         options: { min: 8 },
       },
     },
     comment: {
-      isString: true,
+      optional: false,
+      notEmpty: {
+        errorMessage: 'comment must not empty',
+      },
+      isString: {
+        errorMessage: 'comment should be string',
+      },
       isLength: {
-        errorMessage: 'Username should be at least 8 character length',
+        errorMessage: 'comment should be at least 8 character length',
         options: { min: 8 },
       },
     },
@@ -40,7 +58,7 @@ export const commentBodyValidatorSchema = checkSchema(
   ['body'],
 );
 
-export const commentQueryValidatorSchema = checkSchema(
+export const commentDeletionValidatorSchema = checkSchema(
   {
     videoId: {
       optional: true,

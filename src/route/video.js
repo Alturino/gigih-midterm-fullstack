@@ -1,16 +1,24 @@
+/* eslint-disable import/extensions */
 import express from 'express';
+import { validationResult } from 'express-validator';
 import {
   VideoModel,
   videoCreationValidatorSchema,
   videoDeletionValidatorSchema,
-} from '../model/video';
+} from '../model/video.js';
 
 const videoRouter = express.Router();
 const videoEnpoint = '/videos';
 
 videoRouter.get(videoEnpoint, async (_req, res) => {
   try {
-    const videos = await VideoModel.find({});
+    const videos = await VideoModel.find({}).populate(['comments', 'products']);
+    if (videos.length <= 0) {
+      console.log(`videos is empty`);
+      res.status(200).json(videos).end();
+      return;
+    }
+    console.log(videos.length);
     res.status(200).json(videos).end();
   } catch (e) {
     console.error(e);
@@ -19,6 +27,12 @@ videoRouter.get(videoEnpoint, async (_req, res) => {
 });
 
 videoRouter.post(videoEnpoint, videoCreationValidatorSchema, async (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    console.err(result.array());
+    res.status(403).send(result.array()).end();
+    return;
+  }
   const { urlImage, thumbnail, title, comments } = req.body;
 
   try {
@@ -31,7 +45,13 @@ videoRouter.post(videoEnpoint, videoCreationValidatorSchema, async (req, res) =>
   }
 });
 
-videoRouter.put(videoEnpoint, async (req, res) => {
+videoRouter.put(videoEnpoint, videoCreationValidatorSchema, async (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    console.err(result.array());
+    res.status(403).send(result.array()).end();
+    return;
+  }
   const { videoId, urlImage, thumbnail, title } = req.body;
 
   try {
@@ -54,10 +74,16 @@ videoRouter.put(videoEnpoint, async (req, res) => {
 });
 
 videoRouter.delete(videoEnpoint, videoDeletionValidatorSchema, async (req, res) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    console.err(result.array());
+    res.status(403).send(result.array()).end();
+    return;
+  }
   const { videoId } = req.body;
 
   try {
-    await VideoModel.findByIdAndDelete({ _id: videoId });
+    await VideoModel.findByIdAndDelete({ _id: videoId }).populate(['comments', 'products']);
     res.status(200).send(`Video deletion with id: ${videoId} is succesful`).end();
   } catch (e) {
     console.error(e);
